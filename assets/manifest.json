@@ -1,0 +1,11 @@
+{
+	"items": [{
+		"name": "building",
+		"type": "image",
+		"url": "assets/building.png"
+	}, {
+		"name": "player",
+		"type": "image",
+		"url": "assets/player.png"
+	}]
+}
