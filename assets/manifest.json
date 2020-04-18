@@ -7,5 +7,9 @@
 		"name": "player",
 		"type": "image",
 		"url": "assets/player.png"
+	}, {
+		"name": "enemy",
+		"type": "image",
+		"url": "assets/enemy.png"
 	}]
 }
