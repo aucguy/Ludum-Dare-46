@@ -222,9 +222,29 @@ const PickupGroup = util.extend(Group, 'PickupGroup', {
   }
 });
 
-const AmmoPickup = util.extend(Object, 'AmmoPickup', {
-  constructor: function(scene, group, x, y) {
-    this.sprite = scene.add.sprite(x, y, 'ammo');
+const Pickup = util.extend(Object, 'Pickup', {
+  constructor: function(scene, x, y, key) {
+    this.sprite = scene.add.sprite(x, y, key);
+    this.scene = scene;
+  },
+  onPickup() {}
+});
+
+const AmmoPickup = util.extend(Pickup, 'AmmoPickup', {
+  constructor: function(scene, x, y) {
+    this.constructor$Pickup(scene, x, y, 'ammo');
+  },
+  onPickup() {
+    this.scene.player.bullets++;
+  }
+});
+
+const MedsPickup = util.extend(Pickup, 'MedsPickup', {
+  constructor: function(scene, x, y) {
+    this.constructor$Pickup(scene, x, y, 'meds');
+  },
+  onPickup() {
+    this.scene.player.health++;
   }
 });
 
@@ -237,7 +257,7 @@ const PlayerPickup = util.extend(Object, 'PlayerPickup', {
     for(let pickup of this.scene.pickups.children) {
       let pickupBounds = pickup.sprite.getBounds();
       if(Phaser.Geom.Rectangle.Overlaps(playerBounds, pickupBounds)) {
-        this.scene.player.bullets++;
+        pickup.onPickup();
         this.scene.pickups.delete(pickup);
       }
     }
@@ -470,7 +490,13 @@ function generatePickups(scene, group) {
   for(let i = 0; i < PICKUP_AMOUNT; i++) {
     const x = Math.floor(Math.random() * WIDTH);
     const y = Math.floor(Math.random() * HEIGHT);
-    group.add(new AmmoPickup(scene, group, x, y));
+    group.add(new AmmoPickup(scene, x, y));
+  }
+
+  for(let i = 0; i < PICKUP_AMOUNT; i++) {
+    const x = Math.floor(Math.random() * WIDTH);
+    const y = Math.floor(Math.random() * HEIGHT);
+    group.add(new MedsPickup(scene, x, y));
   }
 }
 

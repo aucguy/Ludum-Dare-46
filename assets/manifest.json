@@ -19,5 +19,9 @@
 		"name": "ammo",
 		"type": "image",
 		"url": "assets/ammo.png"
+	},{
+		"name": "meds",
+		"type": "image",
+		"url": "assets/meds.png"
 	}]
 }
