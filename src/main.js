@@ -41,6 +41,7 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     }
 
     this.player = new Player(32, 32, this);
+    this.physics.add.collider(this.player.sprite, this.enemies.group);
   },
   update() {
     this.player.update();
@@ -143,49 +144,64 @@ const Enemy = util.extend(Object, 'Enemy', {
     const x = Math.floor(Math.random() * WIDTH);
     const y = Math.floor(Math.random() * HEIGHT);
     this.sprite = group.group.create(x, y, 'enemy');
-    this.sprite.owner = this;
   },
   update() {
-    const SPEED = 15;
+    const SPEED = 30;
 
     let x = this.scene.player.sprite.x - this.sprite.x;
     let y = this.scene.player.sprite.y - this.sprite.y;
-
+    
     x = this.changeVel(x, true);
     y = this.changeVel(y, false);
-
+    
     let dist = Math.sqrt(x * x + y * y);
-    var resize = Math.min(SPEED, dist) / dist;
-    x *= resize;
-    y *= resize;
-    this.sprite.setVelocity(x, y);
+    if(dist < 5) {
+        this.sprite.setVelocity(0, 0);
+    } else {
+        let resize = SPEED / dist;
+        
+        x *= resize;
+        y *= resize;
+        
+        if(isNaN(x) || isNaN(y)) {
+            let a = 0;
+        }
+        this.sprite.setVelocity(x, y);
+    }
   },
   changeVel(original, isX) {
     if(original != 0) {
       let offset;
       if(original < 0) {
-        offset = -1;
+          offset = -1;
       } else {
-        offset = 1;
+          offset = 1;
       }
 
       let x, y;
       if(isX) {
-        x = offset;
+          x = offset;
         y = 0;
       } else {
-        x = 0;
-        y = offset;
+          x = 0;
+          y = offset;
       }
 
       let enemyBounds = this.sprite.getBounds();
       let testBounds = Phaser.Geom.Rectangle.Offset(enemyBounds, x, y);
-
-      for(let building of this.scene.buildings.getChildren()) {
-        let buildingBounds = building.getBounds();
-        if(Phaser.Geom.Rectangle.Overlaps(testBounds, buildingBounds)) {
-          return 0;
-        }
+      
+      var objs = [
+          this.scene.buildings.getChildren(),
+          this.scene.enemies.group.getChildren(),
+          this.scene.player.sprite
+      ].flat();
+      for(let obj of objs) {
+          if(obj === this.sprite) {
+              continue;
+          }
+          if(Phaser.Geom.Rectangle.Overlaps(testBounds, obj.getBounds())) {
+              return 0;
+          }
       }
     }
     return original;
