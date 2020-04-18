@@ -29,8 +29,11 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.bulletHitKill = null;
     this.bulletHitStop = null;
     this.hud = null;
+    this.enemyCollision = null;
+    this.timeHandler = null;
   },
   create() {
+    this.timeHandler = new TimeHandler();
     this.inputHandler = new InputHandler(this);
 
     this.enemies = new EnemyGroup(this);
@@ -46,15 +49,29 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.bulletHitStop = new BulletHitStop(this);
 
     this.hud = new Hud(this);
+    this.enemyCollision = new EnemyCollision(this);
   },
-  update() {
+  update(time, delta) {
+    this.timeHandler.update(time, delta);
     this.player.update();
     this.enemies.update();
     this.shooter.update();
     this.inputHandler.update();
     this.bulletHitKill.update();
     this.bulletHitStop.update();
+    this.enemyCollision.update();
     this.hud.update();
+  }
+});
+
+const TimeHandler = util.extend(Object, 'TimeHandler', {
+  constructor: function() {
+    this.time = 0;
+    this.delta = 0;
+  },
+  update(time, delta) {
+    this.time = time;
+    this.delta = delta;
   }
 });
 
@@ -101,6 +118,7 @@ const Player = util.extend(Object, 'Player', {
     this.cameraCenter = new CameraCenter(this, scene);
 
     this.bullets = 10;
+    this.health = 100;
   },
   update() {
     this.movement.update();
@@ -206,6 +224,21 @@ const EnemyGroup = util.extend(PhysicsGroup, 'EnemyGroup', {
   }
 });
 
+function isTouching(sprite, objs, offsetX, offsetY) {
+  const enemyBounds = sprite.getBounds();
+  const testBounds = Phaser.Geom.Rectangle.Offset(enemyBounds, offsetX, offsetY);
+
+  for(let obj of objs) {
+    if(obj === sprite) {
+      continue;
+    }
+    if(Phaser.Geom.Rectangle.Overlaps(testBounds, obj.getBounds())) {
+      return true;
+    }
+  }
+  return false;
+}
+
 const Enemy = util.extend(Object, 'Enemy', {
   constructor: function(scene, group, x, y) {
     this.scene = scene;
@@ -253,24 +286,38 @@ const Enemy = util.extend(Object, 'Enemy', {
         y = offset;
       }
 
-      const enemyBounds = this.sprite.getBounds();
-      const testBounds = Phaser.Geom.Rectangle.Offset(enemyBounds, x, y);
-
       const objs = [
         this.scene.statics.group.getChildren(),
         this.scene.enemies.group.getChildren(),
         this.scene.player.sprite
       ].flat();
-      for(let obj of objs) {
-        if(obj === this.sprite) {
-          continue;
-        }
-        if(Phaser.Geom.Rectangle.Overlaps(testBounds, obj.getBounds())) {
-          return 0;
-        }
+      if(isTouching(this.sprite, objs, x, y)) {
+        return 0;
       }
     }
     return original;
+  }
+});
+
+const EnemyCollision = util.extend(Object, 'EnemyCollision', {
+  constructor: function(scene) {
+    this.scene = scene;
+    this.nextDamage = -1;
+  },
+  update() {
+    const DAMAGE_TIME = 1000;
+    const sprite = this.scene.player.sprite;
+    const objs = this.scene.enemies.group.getChildren();
+    const touchingLeft = isTouching(sprite, objs, -1, 0);
+    const touchingRight = isTouching(sprite, objs, 1, 0);
+    const touchingUp = isTouching(sprite, objs, 0, -1);
+    const touchingDown = isTouching(sprite, objs, 0, 1);
+
+    if((touchingLeft || touchingRight || touchingUp || touchingDown) &&
+      (this.nextDamage == -1 || this.nextDamage <= this.scene.timeHandler.time)) {
+      this.scene.player.health--;
+      this.nextDamage = this.scene.timeHandler.time + DAMAGE_TIME;
+    }
   }
 });
 
@@ -387,10 +434,11 @@ const Hud = util.extend(Object, 'Hud', {
   constructor: function(scene) {
     this.scene = scene;
     this.bulletText = scene.add.text(0, 0, 'Bullets: 0');
+    this.healthText = scene.add.text(0, 20, 'Health: 100');
 
     this.camera = scene.cameras.add(0, 0, scene.cameras.main.width,
       scene.cameras.main.height);
-    scene.cameras.main.ignore([this.bulletText]);
+    scene.cameras.main.ignore([this.bulletText, this.healthText]);
 
     this.camera.ignore([scene.player.sprite, scene.statics.group,
       scene.enemies.group, scene.bullets.group
@@ -402,5 +450,6 @@ const Hud = util.extend(Object, 'Hud', {
   },
   update() {
     this.bulletText.setText('Bullets: ' + this.scene.player.bullets);
+    this.healthText.setText('Health: ' + this.scene.player.health);
   }
 });
