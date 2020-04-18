@@ -11,5 +11,9 @@
 		"name": "enemy",
 		"type": "image",
 		"url": "assets/enemy.png"
+	}, {
+		"name": "bullet",
+		"type": "image",
+		"url": "assets/bullet.png"
 	}]
 }
