@@ -37,7 +37,6 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.statics = new StaticGroup(this);
     this.player = new Player(0, 0, this);
 
-    this.physics.add.collider(this.player.sprite, this.enemies.group);
     this.physics.add.collider(this.player.sprite, this.statics.group);
     this.physics.add.collider(this.enemies.group, this.statics.group);
 
