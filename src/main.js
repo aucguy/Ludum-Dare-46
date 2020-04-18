@@ -9,7 +9,7 @@ export function init() {
     physics: {
       default: 'arcade',
       arcade: {
-        debug: true
+        //debug: true
       }
     },
   });
@@ -28,6 +28,7 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.shooter = null;
     this.bulletHitKill = null;
     this.bulletHitStop = null;
+    this.hud = null;
   },
   create() {
     this.inputHandler = new InputHandler(this);
@@ -44,6 +45,8 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.shooter = new Shooter(this);
     this.bulletHitKill = new BulletHitKill(this);
     this.bulletHitStop = new BulletHitStop(this);
+
+    this.hud = new Hud(this);
   },
   update() {
     this.player.update();
@@ -52,6 +55,7 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.inputHandler.update();
     this.bulletHitKill.update();
     this.bulletHitStop.update();
+    this.hud.update();
   }
 });
 
@@ -96,6 +100,8 @@ const Player = util.extend(Object, 'Player', {
     this.sprite = scene.physics.add.sprite(x, y, 'player');
     this.movement = new PlayerMovement(this, scene);
     this.cameraCenter = new CameraCenter(this, scene);
+
+    this.bullets = 10;
   },
   update() {
     this.movement.update();
@@ -139,11 +145,18 @@ const CameraCenter = util.extend(Object, 'CameraCenter', {
 });
 
 const Group = util.extend(Object, 'Group', {
-  constructor: function() {
+  constructor: function(scene) {
     this.children = new Set();
+    this.group = this.makeGroup(scene);
+    this.events = new Phaser.Events.EventEmitter();
+  },
+  makeGroup(scene) {
+    return scene.add.group();
   },
   add(child) {
     this.children.add(child);
+    this.group.add(child.sprite);
+    this.events.emit('add', child);
   },
   delete(child) {
     this.children.delete(child);
@@ -152,8 +165,13 @@ const Group = util.extend(Object, 'Group', {
 
 const PhysicsGroup = util.extend(Group, 'PhysicsGroup', {
   constructor: function(scene) {
-    this.constructor$Group();
-    this.group = scene.physics.add.group();
+    this.constructor$Group(scene);
+  },
+  makeGroup(scene) {
+    return scene.physics.add.group();
+  },
+  add(child) {
+    this.children.add(child);
   },
   delete(child) {
     this.delete$Group(child);
@@ -165,6 +183,9 @@ const StaticGroup = util.extend(PhysicsGroup, 'StaticGroup', {
   constructor: function(scene) {
     this.constructor$PhysicsGroup(scene);
     generateStatics(scene, this);
+  },
+  makeGroup(scene) {
+    return scene.physics.add.staticGroup();
   }
 });
 
@@ -177,8 +198,6 @@ const Building = util.extend(Object, 'Building', {
 const EnemyGroup = util.extend(PhysicsGroup, 'EnemyGroup', {
   constructor: function(scene) {
     this.constructor$PhysicsGroup(scene);
-    scene.physics.add.collider(this.group);
-
     generateEnemies(scene, this);
   },
   update() {
@@ -203,7 +222,7 @@ const Enemy = util.extend(Object, 'Enemy', {
     y = this.changeVel(y, false);
 
     let dist = Math.sqrt(x * x + y * y);
-    if(dist < 5) {
+    if(dist < 1) {
       this.sprite.setVelocity(0, 0);
     } else {
       let resize = SPEED / dist;
@@ -257,8 +276,8 @@ const Enemy = util.extend(Object, 'Enemy', {
 });
 
 const BulletGroup = util.extend(Group, 'BulletGroup', {
-  constructor: function() {
-    this.constructor$Group();
+  constructor: function(scene) {
+    this.constructor$Group(scene);
   }
 });
 
@@ -286,7 +305,7 @@ const Shooter = util.extend(Object, 'Shooter', {
     this.scene = scene;
   },
   update() {
-    if(this.scene.inputHandler.wasMouseClicked()) {
+    if(this.scene.inputHandler.wasMouseClicked() && this.scene.player.bullets > 0) {
       const mousePos = this.scene.inputHandler.getMousePos();
       const mouseX = mousePos[0] - this.scene.sys.game.canvas.width / 2;
       const mouseY = mousePos[1] - this.scene.sys.game.canvas.height / 2;
@@ -301,6 +320,8 @@ const Shooter = util.extend(Object, 'Shooter', {
       let bullet = new Bullet(this.scene, this.scene.player.sprite.x,
         this.scene.player.sprite.y, x, y);
       this.scene.bullets.add(bullet);
+
+      this.scene.player.bullets--;
     }
   }
 });
@@ -362,3 +383,25 @@ function generateEnemies(scene, group) {
     group.children.add(new Enemy(scene, group, x, y));
   }
 }
+
+const Hud = util.extend(Object, 'Hud', {
+  constructor: function(scene) {
+    this.scene = scene;
+    this.bulletText = scene.add.text(0, 0, 'Bullets: 0');
+
+    this.camera = scene.cameras.add(0, 0, scene.cameras.main.width,
+      scene.cameras.main.height);
+    scene.cameras.main.ignore([this.bulletText]);
+
+    this.camera.ignore([scene.player.sprite, scene.statics.group,
+      scene.enemies.group, scene.bullets.group
+    ]);
+
+    scene.bullets.events.on('add', child => {
+      this.camera.ignore(child.sprite);
+    });
+  },
+  update() {
+    this.bulletText.setText('Bullets: ' + this.scene.player.bullets);
+  }
+});
