@@ -20,7 +20,7 @@ export function init() {
 const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
   constructor: function() {
     this.constructor$Scene();
-    this.buildings = null;
+    this.statics = null;
     this.enemies = null;
     this.player = null;
     this.inputHandler = null;
@@ -33,12 +33,12 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.inputHandler = new InputHandler(this);
 
     this.enemies = new EnemyGroup(this);
-    this.buildings = generateBuildings(this);
+    this.statics = new StaticGroup(this);
     this.player = new Player(0, 0, this);
 
     this.physics.add.collider(this.player.sprite, this.enemies.group);
-    this.physics.add.collider(this.player.sprite, this.buildings);
-    this.physics.add.collider(this.enemies.group, this.buildings);
+    this.physics.add.collider(this.player.sprite, this.statics.group);
+    this.physics.add.collider(this.enemies.group, this.statics.group);
 
     this.bullets = new BulletGroup(this);
     this.shooter = new Shooter(this);
@@ -138,20 +138,48 @@ const CameraCenter = util.extend(Object, 'CameraCenter', {
   }
 });
 
-const EnemyGroup = util.extend(Object, 'EnemyGroup', {
-  constructor: function(scene) {
-    this.group = scene.physics.add.group();
-    scene.physics.add.collider(this.group);
+const Group = util.extend(Object, 'Group', {
+  constructor: function() {
     this.children = new Set();
+  },
+  add(child) {
+    this.children.add(child);
+  },
+  delete(child) {
+    this.children.delete(child);
+  }
+});
+
+const PhysicsGroup = util.extend(Group, 'PhysicsGroup', {
+  constructor: function(scene) {
+    this.constructor$Group();
+    this.group = scene.physics.add.group();
+  },
+  delete(child) {
+    this.delete$Group(child);
+    child.sprite.destroy();
+  }
+});
+
+const StaticGroup = util.extend(PhysicsGroup, 'StaticGroup', {
+  constructor: function(scene) {
+    this.constructor$PhysicsGroup(scene);
+    generateStatics(scene, this);
+  }
+});
+
+const Building = util.extend(Object, 'Building', {
+  constructor: function(group, x, y) {
+    this.sprite = group.group.create(x, y, 'building');
+  }
+});
+
+const EnemyGroup = util.extend(PhysicsGroup, 'EnemyGroup', {
+  constructor: function(scene) {
+    this.constructor$PhysicsGroup(scene);
+    scene.physics.add.collider(this.group);
 
     generateEnemies(scene, this);
-  },
-  add(enemy) {
-    this.children.add(enemy);
-  },
-  delete(enemy) {
-    this.children.delete(enemy);
-    enemy.sprite.destroy();
   },
   update() {
     for(let child of this.children) {
@@ -211,7 +239,7 @@ const Enemy = util.extend(Object, 'Enemy', {
       const testBounds = Phaser.Geom.Rectangle.Offset(enemyBounds, x, y);
 
       const objs = [
-        this.scene.buildings.getChildren(),
+        this.scene.statics.group.getChildren(),
         this.scene.enemies.group.getChildren(),
         this.scene.player.sprite
       ].flat();
@@ -228,16 +256,9 @@ const Enemy = util.extend(Object, 'Enemy', {
   }
 });
 
-const BulletGroup = util.extend(Object, 'BulletGroup', {
+const BulletGroup = util.extend(Group, 'BulletGroup', {
   constructor: function() {
-    this.children = new Set();
-  },
-  add(bullet) {
-    this.children.add(bullet);
-  },
-  delete(bullet) {
-    this.children.delete(bullet);
-    bullet.sprite.destroy();
+    this.constructor$Group();
   }
 });
 
@@ -308,10 +329,10 @@ const BulletHitStop = util.extend(Object, 'BulletHitStop', {
   },
   update() {
     for(let bullet of this.scene.bullets.children) {
-      for(let building of this.scene.buildings.getChildren()) {
+      for(let obj of this.scene.statics.children) {
         let bulletBounds = bullet.sprite.getBounds();
-        let buildingBounds = building.getBounds();
-        if(Phaser.Geom.Rectangle.Overlaps(bulletBounds, buildingBounds)) {
+        let staticBounds = obj.sprite.getBounds();
+        if(Phaser.Geom.Rectangle.Overlaps(bulletBounds, staticBounds)) {
           this.scene.bullets.delete(bullet);
         }
       }
@@ -319,19 +340,15 @@ const BulletHitStop = util.extend(Object, 'BulletHitStop', {
   }
 });
 
-function generateBuildings(scene) {
-  const buildings = scene.physics.add.staticGroup();
-
+function generateStatics(scene, group) {
   const BUILDINGS_AMOUNT = 10;
   const WIDTH = scene.sys.game.canvas.width;
   const HEIGHT = scene.sys.game.canvas.height;
   for(let i = 0; i < BUILDINGS_AMOUNT; i++) {
     let x = Math.floor(Math.random() * WIDTH);
     let y = Math.floor(Math.random() * HEIGHT);
-    buildings.create(x, y, 'building');
+    group.add(new Building(group, x, y));
   }
-
-  return buildings;
 }
 
 function generateEnemies(scene, group) {
