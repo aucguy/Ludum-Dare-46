@@ -23,5 +23,9 @@
 		"name": "meds",
 		"type": "image",
 		"url": "assets/meds.png"
+	}, {
+		"name": "home",
+		"type": "image",
+		"url": "assets/home.png"
 	}]
 }

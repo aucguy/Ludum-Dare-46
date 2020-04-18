@@ -33,6 +33,8 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.timeHandler = null;
     this.pickups = null;
     this.playerPickup = null;
+    this.home = null;
+    this.dropOffMeds = null;
   },
   create() {
     this.timeHandler = new TimeHandler();
@@ -41,12 +43,14 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.enemies = new EnemyGroup(this);
     this.statics = new StaticGroup(this);
     this.player = new Player(0, 0, this);
+    this.home = new Home(this, 0, 0);
 
     this.physics.add.collider(this.player.sprite, this.statics.group);
     this.physics.add.collider(this.enemies.group, this.statics.group);
 
     this.pickups = new PickupGroup(this);
     this.playerPickup = new PlayerPickup(this);
+    this.dropOffMeds = new DropOffMeds(this);
 
     this.bullets = new BulletGroup(this);
     this.shooter = new Shooter(this);
@@ -66,6 +70,7 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.bulletHitStop.update();
     this.enemyCollision.update();
     this.playerPickup.update();
+    this.dropOffMeds.update();
     this.hud.update();
   }
 });
@@ -500,15 +505,38 @@ function generatePickups(scene, group) {
   }
 }
 
+const Home = util.extend(Object, 'Home', {
+  constructor: function(scene, x, y) {
+    this.sprite = scene.add.sprite(x, y, 'home');
+  }
+});
+
+const DropOffMeds = util.extend(Object, 'DropOffMeds', {
+  constructor: function(scene) {
+    this.scene = scene;
+  },
+  update() {
+    const playerBounds = this.scene.player.sprite.getBounds();
+    const homeBounds = this.scene.home.sprite.getBounds();
+    const keydown = this.scene.inputHandler.isKeyDown('F');
+    if(Phaser.Geom.Rectangle.Overlaps(playerBounds, homeBounds) && keydown) {
+      this.scene.player.health--;
+      this.scene.hud.score++;
+    }
+  }
+});
+
 const Hud = util.extend(Object, 'Hud', {
   constructor: function(scene) {
     this.scene = scene;
+    this.score = 0;
     this.bulletText = scene.add.text(0, 0, 'Bullets: 0');
     this.healthText = scene.add.text(0, 20, 'Health: 100');
+    this.scoreText = scene.add.text(0, 40, 'Score: 0');
 
     this.camera = scene.cameras.add(0, 0, scene.cameras.main.width,
       scene.cameras.main.height);
-    scene.cameras.main.ignore([this.bulletText, this.healthText]);
+    scene.cameras.main.ignore([this.bulletText, this.healthText, this.scoreText]);
 
     this.camera.ignore([scene.player.sprite, scene.statics.group,
       scene.enemies.group, scene.bullets.group, scene.pickups.group
@@ -521,5 +549,6 @@ const Hud = util.extend(Object, 'Hud', {
   update() {
     this.bulletText.setText('Bullets: ' + this.scene.player.bullets);
     this.healthText.setText('Health: ' + this.scene.player.health);
+    this.scoreText.setText('Score: ' + this.score);
   }
 });
