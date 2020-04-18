@@ -31,6 +31,8 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.hud = null;
     this.enemyCollision = null;
     this.timeHandler = null;
+    this.pickups = null;
+    this.playerPickup = null;
   },
   create() {
     this.timeHandler = new TimeHandler();
@@ -42,6 +44,9 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
 
     this.physics.add.collider(this.player.sprite, this.statics.group);
     this.physics.add.collider(this.enemies.group, this.statics.group);
+
+    this.pickups = new PickupGroup(this);
+    this.playerPickup = new PlayerPickup(this);
 
     this.bullets = new BulletGroup(this);
     this.shooter = new Shooter(this);
@@ -60,6 +65,7 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.bulletHitKill.update();
     this.bulletHitStop.update();
     this.enemyCollision.update();
+    this.playerPickup.update();
     this.hud.update();
   }
 });
@@ -177,6 +183,7 @@ const Group = util.extend(Object, 'Group', {
   },
   delete(child) {
     this.children.delete(child);
+    child.sprite.destroy();
   }
 });
 
@@ -189,10 +196,6 @@ const PhysicsGroup = util.extend(Group, 'PhysicsGroup', {
   },
   add(child) {
     this.children.add(child);
-  },
-  delete(child) {
-    this.delete$Group(child);
-    child.sprite.destroy();
   }
 });
 
@@ -209,6 +212,35 @@ const StaticGroup = util.extend(PhysicsGroup, 'StaticGroup', {
 const Building = util.extend(Object, 'Building', {
   constructor: function(group, x, y) {
     this.sprite = group.group.create(x, y, 'building');
+  }
+});
+
+const PickupGroup = util.extend(Group, 'PickupGroup', {
+  constructor: function(scene) {
+    this.constructor$Group(scene);
+    generatePickups(scene, this);
+  }
+});
+
+const AmmoPickup = util.extend(Object, 'AmmoPickup', {
+  constructor: function(scene, group, x, y) {
+    this.sprite = scene.add.sprite(x, y, 'ammo');
+  }
+});
+
+const PlayerPickup = util.extend(Object, 'PlayerPickup', {
+  constructor: function(scene) {
+    this.scene = scene;
+  },
+  update() {
+    const playerBounds = this.scene.player.sprite.getBounds();
+    for(let pickup of this.scene.pickups.children) {
+      let pickupBounds = pickup.sprite.getBounds();
+      if(Phaser.Geom.Rectangle.Overlaps(playerBounds, pickupBounds)) {
+        this.scene.player.bullets++;
+        this.scene.pickups.delete(pickup);
+      }
+    }
   }
 });
 
@@ -426,7 +458,19 @@ function generateEnemies(scene, group) {
   for(let i = 0; i < ENEMY_AMOUNT; i++) {
     const x = Math.floor(Math.random() * WIDTH);
     const y = Math.floor(Math.random() * HEIGHT);
-    group.children.add(new Enemy(scene, group, x, y));
+    group.add(new Enemy(scene, group, x, y));
+  }
+}
+
+function generatePickups(scene, group) {
+  const PICKUP_AMOUNT = 10;
+  const WIDTH = scene.sys.game.canvas.width;
+  const HEIGHT = scene.sys.game.canvas.height;
+
+  for(let i = 0; i < PICKUP_AMOUNT; i++) {
+    const x = Math.floor(Math.random() * WIDTH);
+    const y = Math.floor(Math.random() * HEIGHT);
+    group.add(new AmmoPickup(scene, group, x, y));
   }
 }
 
@@ -441,7 +485,7 @@ const Hud = util.extend(Object, 'Hud', {
     scene.cameras.main.ignore([this.bulletText, this.healthText]);
 
     this.camera.ignore([scene.player.sprite, scene.statics.group,
-      scene.enemies.group, scene.bullets.group
+      scene.enemies.group, scene.bullets.group, scene.pickups.group
     ]);
 
     scene.bullets.events.on('add', child => {

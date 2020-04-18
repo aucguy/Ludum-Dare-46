@@ -15,5 +15,9 @@
 		"name": "bullet",
 		"type": "image",
 		"url": "assets/bullet.png"
+	}, {
+		"name": "ammo",
+		"type": "image",
+		"url": "assets/ammo.png"
 	}]
 }
