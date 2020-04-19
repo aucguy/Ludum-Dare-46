@@ -1,5 +1,6 @@
 import * as util from '/lib/util.js';
 import { PhysicsGroup } from './group.js';
+import { constants } from './constants.js';
 
 export const EnemyGroup = util.extend(PhysicsGroup, 'EnemyGroup', {
   constructor: function(scene) {
@@ -33,8 +34,6 @@ export const Enemy = util.extend(Object, 'Enemy', {
     this.sprite = scene.enemies.group.create(x, y, 'enemy');
   },
   update() {
-    const SPEED = 30;
-
     let x = this.scene.player.sprite.x - this.sprite.x;
     let y = this.scene.player.sprite.y - this.sprite.y;
 
@@ -45,7 +44,7 @@ export const Enemy = util.extend(Object, 'Enemy', {
     if(dist < 1) {
       this.sprite.setVelocity(0, 0);
     } else {
-      let resize = SPEED / dist;
+      let resize = constants().enemySpeed / dist;
 
       x *= resize;
       y *= resize;
@@ -93,7 +92,6 @@ export const EnemyCollision = util.extend(Object, 'EnemyCollision', {
     this.nextDamage = -1;
   },
   update() {
-    const DAMAGE_TIME = 1000;
     const sprite = this.scene.player.sprite;
     const objs = this.scene.enemies.group.getChildren();
     const touchingLeft = isTouching(sprite, objs, -1, 0);
@@ -103,8 +101,8 @@ export const EnemyCollision = util.extend(Object, 'EnemyCollision', {
 
     if((touchingLeft || touchingRight || touchingUp || touchingDown) &&
       (this.nextDamage == -1 || this.nextDamage <= this.scene.timeHandler.time)) {
-      this.scene.player.health--;
-      this.nextDamage = this.scene.timeHandler.time + DAMAGE_TIME;
+      this.scene.player.health -= constants().enemyDamage;
+      this.nextDamage = this.scene.timeHandler.time + constants().immuneTime;
     }
   }
 });

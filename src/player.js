@@ -1,4 +1,5 @@
 import * as util from '/lib/util.js';
+import { constants } from './constants.js';
 
 export const Player = util.extend(Object, 'Player', {
   constructor: function(x, y, scene) {
@@ -6,9 +7,9 @@ export const Player = util.extend(Object, 'Player', {
     this.movement = new PlayerMovement(this, scene);
     this.cameraCenter = new CameraCenter(this, scene);
 
-    this.bullets = 1000;
-    this.health = 5;
-    this.meds = 0;
+    this.bullets = constants().initBullets;
+    this.health = constants().initHealth;
+    this.meds = constants().initMeds;
   },
   update() {
     this.movement.update();
@@ -24,18 +25,17 @@ export const PlayerMovement = util.extend(Object, 'PlayerMovement', {
   update() {
     let xVel = 0;
     let yVel = 0;
-    const MOVE_SPEED = 100;
     if(this.inputHandler.isKeyDown('D')) {
-      xVel = MOVE_SPEED;
+      xVel = constants().playerSpeed;
     }
     if(this.inputHandler.isKeyDown('A')) {
-      xVel = -MOVE_SPEED;
+      xVel = -constants().playerSpeed;
     }
     if(this.inputHandler.isKeyDown('S')) {
-      yVel = MOVE_SPEED;
+      yVel = constants().playerSpeed;
     }
     if(this.inputHandler.isKeyDown('W')) {
-      yVel = -MOVE_SPEED;
+      yVel = -constants().playerSpeed;
     }
     this.player.sprite.setVelocity(xVel, yVel);
   }
@@ -48,8 +48,8 @@ export const MedHeal = util.extend(Object, 'MedHeal', {
   update() {
     if(this.scene.inputHandler.wasKeyJustPressed('R')) {
       if(this.scene.player.meds > 0) {
-        this.scene.player.meds--;
-        this.scene.player.health++;
+        this.scene.player.meds -= constants().healMedsDecr;
+        this.scene.player.health += constants().healHealhIncr;
       }
     }
   }

@@ -1,5 +1,6 @@
 import * as util from '/lib/util.js';
 import { Group } from './group.js';
+import { constants } from './constants.js';
 
 export const BulletGroup = util.extend(Group, 'BulletGroup', {
   constructor: function(scene) {
@@ -11,13 +12,12 @@ export const BulletGroup = util.extend(Group, 'BulletGroup', {
 const Bullet = util.extend(Object, 'Bullet', {
   constructor: function(scene, xPos, yPos, xVel, yVel) {
     this.sprite = scene.add.sprite(xPos, yPos, 'bullet');
-    const DURATION = 3;
     scene.add.tween({
       targets: this.sprite,
-      duration: DURATION * 1000,
+      duration: constants().bulletTravelTime * 1000,
       props: {
-        x: xPos + xVel * DURATION,
-        y: yPos + yVel * DURATION
+        x: xPos + xVel * constants().bulletTravelTime,
+        y: yPos + yVel * constants().bulletTravelTime
       },
       onComplete: () => {
         scene.bullets.delete(this);
@@ -38,7 +38,7 @@ export const Shooter = util.extend(Object, 'Shooter', {
       let x = mouseX - this.scene.cameras.main.x;
       let y = mouseY - this.scene.cameras.main.y;
 
-      const resize = 1000 / Math.sqrt(x * x + y * y);
+      const resize = constants().bulletSpeed / Math.sqrt(x * x + y * y);
 
       x *= resize;
       y *= resize;
@@ -47,7 +47,7 @@ export const Shooter = util.extend(Object, 'Shooter', {
         this.scene.player.sprite.y, x, y);
       this.scene.bullets.add(bullet);
 
-      this.scene.player.bullets--;
+      this.scene.player.bullets -= constants().bulletShootNum;
     }
   }
 });

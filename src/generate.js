@@ -3,8 +3,9 @@ import { StaticGroup, Building } from './terrain.js';
 import { EnemyGroup, Enemy } from './enemy.js';
 import { PickupGroup, AmmoPickup, MedsPickup } from './pickup.js';
 import { Home } from './home.js';
+import { constants } from './constants.js';
 
-const MAP_SIZE = 1000;
+const mapSize = constants().mapSize;
 
 export function generateTerrain(scene) {
   const statics = new StaticGroup(scene);
@@ -17,25 +18,26 @@ export function generateTerrain(scene) {
   const buildingFactory = (x, y) => new Building(statics, x, y);
 
   const buildingTex = scene.textures.get('building').getSourceImage();
-  for(let x = -MAP_SIZE / 2; x < MAP_SIZE / 2; x += buildingTex.width) {
-    createObj(statics, objs, buildingFactory, x, -MAP_SIZE / 2 - buildingTex.height / 2);
-    createObj(statics, objs, buildingFactory, x, MAP_SIZE / 2 + buildingTex.height / 2);
+  for(let x = -mapSize / 2; x < mapSize / 2; x += buildingTex.width) {
+    createObj(statics, objs, buildingFactory, x, -mapSize / 2 - buildingTex.height / 2);
+    createObj(statics, objs, buildingFactory, x, mapSize / 2 + buildingTex.height / 2);
   }
 
-  for(let y = -MAP_SIZE / 2; y < MAP_SIZE / 2; y += buildingTex.height) {
-    createObj(statics, objs, buildingFactory, -MAP_SIZE / 2 - buildingTex.width / 2, y);
-    createObj(statics, objs, buildingFactory, MAP_SIZE / 2 + buildingTex.width / 2, y);
+  for(let y = -mapSize / 2; y < mapSize / 2; y += buildingTex.height) {
+    createObj(statics, objs, buildingFactory, -mapSize / 2 - buildingTex.width / 2, y);
+    createObj(statics, objs, buildingFactory, mapSize / 2 + buildingTex.width / 2, y);
   }
 
-  spawn(scene, 250, objs, statics, 'building', buildingFactory);
-  spawn(scene, 250, objs, pickups, 'ammo', (x, y) => {
-    if(Math.random() < 0.5) {
+  spawn(scene, constants().buildingInitSpawn, objs, statics, 'building', buildingFactory);
+  spawn(scene, constants().pickupInitSpawn, objs, pickups, 'ammo', (x, y) => {
+    if(Math.random() < constants().ammoInitSpawnProp) {
       return new AmmoPickup(scene, x, y);
     } else {
       return new MedsPickup(scene, x, y);
     }
   });
-  //spawn(scene, 250, objs, enemies, 'enemies', (x, y) => new Enemy(scene, x, y));
+  //spawn(scene, constants().enemyInitSpawn, objs, enemies, 'enemies',
+  //    (x, y) =>new Enemy(scene, x, y));
 
   return {
     statics,
@@ -47,11 +49,11 @@ export function generateTerrain(scene) {
 
 function spawn(scene, attempts, objs, group, key, factory) {
   const texture = scene.textures.get(key).getSourceImage();
-  const margin = texture.width;
+  const margin = texture.width * constants().marginFactor;
 
   for(let i = 0; i < attempts; i++) {
-    let attemptX = Math.random() * MAP_SIZE - MAP_SIZE / 2;
-    let attemptY = Math.random() * MAP_SIZE - MAP_SIZE / 2;
+    let attemptX = Math.random() * mapSize - mapSize / 2;
+    let attemptY = Math.random() * mapSize - mapSize / 2;
     let halfWidth = texture.width / 2;
     let halfHeight = texture.height / 2;
     let bounds = new Phaser.Geom.Rectangle(attemptX - halfWidth - margin,
@@ -78,6 +80,23 @@ function createObj(group, objs, factory, x, y) {
   objs.add(created);
 }
 
+function getSpawnType() {
+  let chance = Math.random();
+  if(chance < constants().enemySpawnChance) {
+    return 'enemy';
+  }
+  chance -= constants().enemySpawnChance;
+  if(chance < constants().ammoSpawnChance) {
+    return 'ammo';
+  }
+  chance -= constants.ammoSpawnChance;
+  if(chance < constants().medsSpawnChance) {
+    return 'meds';
+  } else {
+    return 'none';
+  }
+}
+
 export const Spawner = util.extend(Object, 'Spawner', {
   constructor: function(scene) {
     this.scene = scene;
@@ -85,8 +104,10 @@ export const Spawner = util.extend(Object, 'Spawner', {
   },
   update() {
     if(this.nextSpawn === -1) {
-      this.nextSpawn = this.scene.timeHandler.time; //+ 10000;
+      this.nextSpawn = this.scene.timeHandler.time; //+ constants().firstSpawnTime;
     } else if(this.nextSpawn <= this.scene.timeHandler.time) {
+      this.nextSpawn = this.scene.timeHandler.time + 1; //+ constants().spawnTime;
+
       const objs = [
         this.scene.statics.group.getChildren(),
         this.scene.enemies.group.getChildren(),
@@ -95,20 +116,15 @@ export const Spawner = util.extend(Object, 'Spawner', {
         this.scene.player.sprite
       ].flat();
 
-      let type;
-      let chance = Math.random();
+      const type = getSpawnType();
 
-      if(chance < 0.33) {
-        type = 'enemy';
-      } else if(chance < 0.66) {
-        type = 'ammo';
-      } else {
-        type = 'meds';
+      if(type === 'none') {
+        return;
       }
 
       const texture = this.scene.textures.get(type).getSourceImage();
-      let attemptX = Math.random() * MAP_SIZE - MAP_SIZE / 2;
-      let attemptY = Math.random() * MAP_SIZE - MAP_SIZE / 2;
+      let attemptX = Math.random() * mapSize - mapSize / 2;
+      let attemptY = Math.random() * mapSize - mapSize / 2;
       const spawnBounds = new Phaser.Geom.Rectangle(attemptX, attemptY,
         texture.width, texture.height);
 
@@ -130,8 +146,6 @@ export const Spawner = util.extend(Object, 'Spawner', {
           this.scene.pickups.add(new MedsPickup(this.scene, attemptX, attemptY));
         }
       }
-
-      this.nextSpawn = this.scene.timeHandler.time + 1; //+ 5000;
     }
   }
 });

@@ -1,5 +1,6 @@
 import * as util from '/lib/util.js';
 import { Group } from './group.js';
+import { constants } from './constants.js';
 
 export const PickupGroup = util.extend(Group, 'PickupGroup', {
   constructor: function(scene) {
@@ -20,7 +21,7 @@ export const AmmoPickup = util.extend(Pickup, 'AmmoPickup', {
     this.constructor$Pickup(scene, x, y, 'ammo');
   },
   onPickup() {
-    this.scene.player.bullets++;
+    this.scene.player.bullets += constants().ammoPickupIncr;
   }
 });
 
@@ -29,7 +30,7 @@ export const MedsPickup = util.extend(Pickup, 'MedsPickup', {
     this.constructor$Pickup(scene, x, y, 'meds');
   },
   onPickup() {
-    this.scene.player.meds++;
+    this.scene.player.meds += constants().medsPickupIncr;
   }
 });
 

@@ -1,4 +1,5 @@
 import * as util from '/lib/util.js';
+import { constants } from './constants.js';
 
 let score = 0;
 
@@ -15,19 +16,19 @@ export const Hud = util.extend(Object, 'Hud', {
     this.hudSprite.x = this.hudSprite.getBounds().width / 2;
     this.hudSprite.y = scene.cameras.main.height - this.hudSprite.getBounds().height / 2;
 
-    let unpack = this.addIndicator(scene, 32, 'ammo');
+    let unpack = this.addIndicator(scene, constants().ammoHudX, 'ammo');
     this.bulletSprite = unpack.sprite;
     this.bulletText = unpack.text;
 
-    unpack = this.addIndicator(scene, 160, 'meds');
+    unpack = this.addIndicator(scene, constants().medsHudX, 'meds');
     this.medsSprite = unpack.sprite;
     this.medsText = unpack.text;
 
-    unpack = this.addIndicator(scene, 288, 'health');
+    unpack = this.addIndicator(scene, constants().healthHudX, 'health');
     this.healthSprite = unpack.sprite;
     this.healthText = unpack.text;
 
-    unpack = this.addIndicator(scene, 356, 'score');
+    unpack = this.addIndicator(scene, constants().scoreHudX, 'home');
     this.scoreSprite = unpack.sprite;
     this.scoreText = unpack.text;
 
