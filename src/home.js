@@ -4,6 +4,7 @@ import { constants } from './constants.js';
 export const Home = util.extend(Object, 'Home', {
   constructor: function(scene, x, y) {
     this.sprite = scene.add.sprite(x, y, 'home');
+    this.sprite.setScale(4);
   }
 });
 

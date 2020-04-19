@@ -18,14 +18,16 @@ export function generateTerrain(scene) {
   const buildingFactory = (x, y) => new Building(statics, x, y);
 
   const buildingTex = scene.textures.get('building').getSourceImage();
-  for(let x = -mapSize / 2; x < mapSize / 2; x += buildingTex.width) {
-    createObj(statics, objs, buildingFactory, x, -mapSize / 2 - buildingTex.height / 2);
-    createObj(statics, objs, buildingFactory, x, mapSize / 2 + buildingTex.height / 2);
+  const buildingWidth = buildingTex.width * 4;
+  const buildingHeight = buildingTex.height * 4;
+  for(let x = -mapSize / 2; x < mapSize / 2; x += buildingWidth) {
+    createObj(statics, objs, buildingFactory, x, -mapSize / 2 - buildingHeight / 2);
+    createObj(statics, objs, buildingFactory, x, mapSize / 2 + buildingHeight / 2);
   }
 
-  for(let y = -mapSize / 2; y < mapSize / 2; y += buildingTex.height) {
-    createObj(statics, objs, buildingFactory, -mapSize / 2 - buildingTex.width / 2, y);
-    createObj(statics, objs, buildingFactory, mapSize / 2 + buildingTex.width / 2, y);
+  for(let y = -mapSize / 2; y < mapSize / 2; y += buildingHeight) {
+    createObj(statics, objs, buildingFactory, -mapSize / 2 - buildingWidth / 2, y);
+    createObj(statics, objs, buildingFactory, mapSize / 2 + buildingWidth / 2, y);
   }
 
   spawn(scene, constants().buildingInitSpawn, objs, statics, 'building', buildingFactory);
@@ -54,19 +56,29 @@ function getScreenBounds(scene, playerX, playerY) {
     -screenHeight / 2 + playerY, screenWidth, screenHeight);
 }
 
-function spawn(scene, attempts, objs, group, key, factory) {
+function getSpawnableBounds(scene, key, x, y, marginFactor) {
   const texture = scene.textures.get(key).getSourceImage();
-  const margin = texture.width * constants().marginFactor;
+  let width = texture.width;
+  let height = texture.height;
+  if(key === 'enemy' || key === 'building') {
+    width *= 4;
+    height *= 4;
+  }
+
+  const margin = width * marginFactor;
+
+  return new Phaser.Geom.Rectangle(x - width / 2 - margin, y - height / 2 - margin,
+    width + 2 * margin, height + 2 * margin);
+}
+
+function spawn(scene, attempts, objs, group, key, factory) {
   const screenBounds = getScreenBounds(scene, 0, 0);
 
   for(let i = 0; i < attempts; i++) {
     let attemptX = Math.random() * mapSize - mapSize / 2;
     let attemptY = Math.random() * mapSize - mapSize / 2;
-    let halfWidth = texture.width / 2;
-    let halfHeight = texture.height / 2;
-    let bounds = new Phaser.Geom.Rectangle(attemptX - halfWidth - margin,
-      attemptY - halfHeight - margin, texture.width + 2 * margin,
-      texture.height + 2 * margin);
+    let bounds = getSpawnableBounds(scene, key, attemptX, attemptY,
+      constants().marginFactor);
 
     if(key === 'enemy' && Phaser.Geom.Rectangle.Overlaps(bounds, screenBounds)) {
       continue;
@@ -134,11 +146,9 @@ export const Spawner = util.extend(Object, 'Spawner', {
         return;
       }
 
-      const texture = this.scene.textures.get(type).getSourceImage();
       let attemptX = Math.random() * mapSize - mapSize / 2;
       let attemptY = Math.random() * mapSize - mapSize / 2;
-      const spawnBounds = new Phaser.Geom.Rectangle(attemptX, attemptY,
-        texture.width, texture.height);
+      const spawnBounds = getSpawnableBounds(this.scene, type, attemptX, attemptY, 0);
 
       const screenBounds = getScreenBounds(this.scene, this.scene.player.sprite.x,
         this.scene.player.sprite.y);

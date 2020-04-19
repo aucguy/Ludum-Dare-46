@@ -13,6 +13,7 @@ export const Hud = util.extend(Object, 'Hud', {
     this.setScore(0);
 
     this.hudSprite = scene.add.sprite(0, 0, 'hud');
+    this.hudSprite.setScale(4);
     this.hudSprite.x = this.hudSprite.getBounds().width / 2;
     this.hudSprite.y = scene.cameras.main.height - this.hudSprite.getBounds().height / 2;
 
@@ -57,6 +58,7 @@ export const Hud = util.extend(Object, 'Hud', {
   },
   addIndicator(scene, x, key) {
     const sprite = scene.add.sprite(x, this.hudSprite.y, key);
+    sprite.setScale(4);
     const text = scene.add.text(sprite.getBounds().right + 8, this.hudSprite.y, '0');
     text.y -= text.getBounds().height / 2;
 

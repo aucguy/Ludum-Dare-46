@@ -4,6 +4,7 @@ import { constants } from './constants.js';
 export const Player = util.extend(Object, 'Player', {
   constructor: function(x, y, scene) {
     this.sprite = scene.physics.add.sprite(x, y, 'player');
+    this.sprite.setScale(4);
     this.movement = new PlayerMovement(this, scene);
     this.cameraCenter = new CameraCenter(this, scene);
 
@@ -21,23 +22,33 @@ export const PlayerMovement = util.extend(Object, 'PlayerMovement', {
   constructor: function(player, scene) {
     this.player = player;
     this.inputHandler = scene.inputHandler;
+    this.facing = 'walkRight';
   },
   update() {
     let xVel = 0;
     let yVel = 0;
+
     if(this.inputHandler.isKeyDown('D')) {
       xVel = constants().playerSpeed;
-    }
-    if(this.inputHandler.isKeyDown('A')) {
+      this.facing = 'walkRight';
+    } else if(this.inputHandler.isKeyDown('A')) {
       xVel = -constants().playerSpeed;
+      this.facing = 'walkLeft';
     }
+
     if(this.inputHandler.isKeyDown('S')) {
       yVel = constants().playerSpeed;
-    }
-    if(this.inputHandler.isKeyDown('W')) {
+    } else if(this.inputHandler.isKeyDown('W')) {
       yVel = -constants().playerSpeed;
     }
+
     this.player.sprite.setVelocity(xVel, yVel);
+
+    if(xVel != 0 || yVel != 0) {
+      this.player.sprite.anims.play(this.facing, true);
+    } else {
+      this.player.sprite.anims.stop();
+    }
   }
 });
 

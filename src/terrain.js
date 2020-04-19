@@ -13,5 +13,7 @@ export const StaticGroup = util.extend(PhysicsGroup, 'StaticGroup', {
 export const Building = util.extend(Object, 'Building', {
   constructor: function(group, x, y) {
     this.sprite = group.group.create(x, y, 'building');
+    this.sprite.setScale(4);
+    this.sprite.refreshBody();
   }
 });

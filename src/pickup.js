@@ -11,6 +11,7 @@ export const PickupGroup = util.extend(Group, 'PickupGroup', {
 const Pickup = util.extend(Object, 'Pickup', {
   constructor: function(scene, x, y, key) {
     this.sprite = scene.add.sprite(x, y, key);
+    this.sprite.setScale(4);
     this.scene = scene;
   },
   onPickup() {}

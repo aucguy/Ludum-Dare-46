@@ -4,14 +4,6 @@
 		"type": "image",
 		"url": "assets/building.png"
 	}, {
-		"name": "player",
-		"type": "image",
-		"url": "assets/player.png"
-	}, {
-		"name": "enemy",
-		"type": "image",
-		"url": "assets/enemy.png"
-	}, {
 		"name": "bullet",
 		"type": "image",
 		"url": "assets/bullet.png"
@@ -67,5 +59,13 @@
 		"name": "use",
 		"type": "audio",
 		"url": "assets/use.wav"
+	}, {
+		"name": "wallpaper",
+		"type": "image",
+		"url": "assets/wallpaper.png"
+	}, {
+		"name": "title",
+		"type": "image",
+		"url": "assets/title.png"
 	}]
 }

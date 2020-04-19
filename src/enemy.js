@@ -32,6 +32,8 @@ export const Enemy = util.extend(Object, 'Enemy', {
   constructor: function(scene, group, x, y) {
     this.scene = scene;
     this.sprite = group.group.create(x, y, 'enemy');
+    this.sprite.setScale(4);
+    this.sprite.anims.play('enemyWalk');
   },
   update() {
     let x = this.scene.player.sprite.x - this.sprite.x;

@@ -7,7 +7,7 @@ export function init() {
     width: 640,
     height: 480,
     parent: 'gameContainer',
-    scene: new util.BootScene('menu'),
+    scene: new CustomBootScene('menu'),
     physics: {
       default: 'arcade',
       arcade: {
@@ -22,11 +22,63 @@ export function init() {
   return game;
 }
 
+const CustomBootScene = util.extend(util.BootScene, 'CustomBootScene', {
+  constructor: function(nextScene) {
+    this.constructor$BootScene(nextScene);
+  },
+  preload() {
+    this.preload$BootScene();
+    this.load.spritesheet('player', 'assets/player.png', {
+      frameWidth: 16,
+      frameHeight: 16
+    });
+
+    this.load.spritesheet('enemy', 'assets/enemy.png', {
+      frameWidth: 8,
+      frameHeight: 8
+    });
+  },
+  create() {
+    this.create$BootScene();
+
+    this.anims.create({
+      key: 'walkRight',
+      frames: this.anims.generateFrameNumbers('player', {
+        start: 0,
+        end: 1
+      }),
+      frameRate: 2,
+      repeat: -1
+    });
+
+    this.anims.create({
+      key: 'walkLeft',
+      frames: this.anims.generateFrameNumbers('player', {
+        start: 2,
+        end: 3
+      }),
+      frameRate: 2,
+      repeat: -1
+    });
+
+    this.anims.create({
+      key: 'enemyWalk',
+      frames: this.anims.generateFrameNumbers('enemy', {
+        start: 0,
+        end: 1
+      }),
+      frameRate: 2,
+      repeat: -1
+    });
+  }
+});
+
 function addPlayButton(scene) {
   const x = scene.cameras.main.width / 2;
   const y = scene.cameras.main.height / 2;
 
   const playButton = scene.add.sprite(x, y, 'play');
+  playButton.setScale(4);
   playButton.setInteractive();
   playButton.on('pointerdown', () => {
     scene.scene.start('play');
@@ -39,7 +91,12 @@ const MenuScene = util.extend(Phaser.Scene, 'MenuScene', {
     this.playButton = null;
   },
   create() {
+    const width = this.cameras.main.width;
+    const height = this.cameras.main.height;
+    this.add.sprite(width / 2, height / 2, 'wallpaper');
     addPlayButton(this);
+    const title = this.add.sprite(width / 2, height / 4, 'title');
+    title.setScale(4);
   }
 });
 
