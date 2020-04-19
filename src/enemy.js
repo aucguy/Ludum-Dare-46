@@ -4,7 +4,6 @@ import { PhysicsGroup } from './group.js';
 export const EnemyGroup = util.extend(PhysicsGroup, 'EnemyGroup', {
   constructor: function(scene) {
     this.constructor$PhysicsGroup(scene);
-    generateEnemies(scene, this);
   },
   update() {
     for(let child of this.children) {
@@ -28,7 +27,7 @@ function isTouching(sprite, objs, offsetX, offsetY) {
   return false;
 }
 
-const Enemy = util.extend(Object, 'Enemy', {
+export const Enemy = util.extend(Object, 'Enemy', {
   constructor: function(scene, group, x, y) {
     this.scene = scene;
     this.sprite = group.group.create(x, y, 'enemy');
@@ -109,15 +108,3 @@ export const EnemyCollision = util.extend(Object, 'EnemyCollision', {
     }
   }
 });
-
-function generateEnemies(scene, group) {
-  const ENEMY_AMOUNT = 10;
-  const WIDTH = scene.sys.game.canvas.width;
-  const HEIGHT = scene.sys.game.canvas.height;
-
-  for(let i = 0; i < ENEMY_AMOUNT; i++) {
-    const x = Math.floor(Math.random() * WIDTH);
-    const y = Math.floor(Math.random() * HEIGHT);
-    group.add(new Enemy(scene, group, x, y));
-  }
-}

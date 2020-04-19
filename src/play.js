@@ -7,6 +7,7 @@ import { EnemyGroup, EnemyCollision } from './enemy.js';
 import { BulletGroup, Shooter, BulletHitKill, BulletHitStop } from './bullet.js';
 import { Home, DropOffMeds } from './home.js';
 import { Hud } from './hud.js';
+import { generateTerrain } from './generate.js';
 
 export const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
   constructor: function() {
@@ -33,15 +34,16 @@ export const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.timeHandler = new TimeHandler();
     this.inputHandler = new InputHandler(this);
 
-    this.enemies = new EnemyGroup(this);
-    this.statics = new StaticGroup(this);
+    const terrain = generateTerrain(this);
     this.player = new Player(0, 0, this);
-    this.home = new Home(this, 0, 0);
+    this.statics = terrain.statics;
+    this.enemies = terrain.enemies;
+    this.pickups = terrain.pickups;
+    this.home = terrain.home;
 
     this.physics.add.collider(this.player.sprite, this.statics.group);
     this.physics.add.collider(this.enemies.group, this.statics.group);
 
-    this.pickups = new PickupGroup(this);
     this.playerPickup = new PlayerPickup(this);
     this.dropOffMeds = new DropOffMeds(this);
     this.medHeal = new MedHeal(this);

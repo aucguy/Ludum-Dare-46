@@ -4,7 +4,6 @@ import { Group } from './group.js';
 export const PickupGroup = util.extend(Group, 'PickupGroup', {
   constructor: function(scene) {
     this.constructor$Group(scene);
-    generatePickups(scene, this);
   }
 });
 
@@ -49,21 +48,3 @@ export const PlayerPickup = util.extend(Object, 'PlayerPickup', {
     }
   }
 });
-
-function generatePickups(scene, group) {
-  const PICKUP_AMOUNT = 10;
-  const WIDTH = scene.sys.game.canvas.width;
-  const HEIGHT = scene.sys.game.canvas.height;
-
-  for(let i = 0; i < PICKUP_AMOUNT; i++) {
-    const x = Math.floor(Math.random() * WIDTH);
-    const y = Math.floor(Math.random() * HEIGHT);
-    group.add(new AmmoPickup(scene, x, y));
-  }
-
-  for(let i = 0; i < PICKUP_AMOUNT; i++) {
-    const x = Math.floor(Math.random() * WIDTH);
-    const y = Math.floor(Math.random() * HEIGHT);
-    group.add(new MedsPickup(scene, x, y));
-  }
-}
