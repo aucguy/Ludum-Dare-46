@@ -29,5 +29,6 @@ export const PhysicsGroup = util.extend(Group, 'PhysicsGroup', {
   },
   add(child) {
     this.children.add(child);
+    this.events.emit('add', child);
   }
 });

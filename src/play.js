@@ -7,7 +7,7 @@ import { EnemyGroup, EnemyCollision } from './enemy.js';
 import { BulletGroup, Shooter, BulletHitKill, BulletHitStop } from './bullet.js';
 import { Home, DropOffMeds } from './home.js';
 import { Hud } from './hud.js';
-import { generateTerrain } from './generate.js';
+import { generateTerrain, Spawner } from './generate.js';
 
 export const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
   constructor: function() {
@@ -30,6 +30,7 @@ export const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.medHeal = null;
     this.healthDeath = null;
     this.background = null;
+    this.spawner = null;
   },
   create() {
     this.background = new Background(this);
@@ -58,6 +59,7 @@ export const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
 
     this.hud = new Hud(this);
     this.enemyCollision = new EnemyCollision(this);
+    this.spawner = new Spawner(this);
   },
   update(time, delta) {
     this.timeHandler.update(time, delta);
@@ -73,6 +75,7 @@ export const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.hud.update();
     this.inputHandler.update();
     this.healthDeath.update();
+    this.spawner.update();
     this.background.update();
   }
 });

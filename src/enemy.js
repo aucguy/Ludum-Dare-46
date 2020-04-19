@@ -28,9 +28,9 @@ function isTouching(sprite, objs, offsetX, offsetY) {
 }
 
 export const Enemy = util.extend(Object, 'Enemy', {
-  constructor: function(scene, group, x, y) {
+  constructor: function(scene, x, y) {
     this.scene = scene;
-    this.sprite = group.group.create(x, y, 'enemy');
+    this.sprite = scene.enemies.group.create(x, y, 'enemy');
   },
   update() {
     const SPEED = 30;
