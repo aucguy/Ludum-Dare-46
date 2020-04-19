@@ -5,7 +5,7 @@ const items = {
   bulletSpeed: 1000,
   bulletShootNum: 1,
   enemySpeed: 50,
-  immuneTime: 1000,
+  immuneTime: 3000,
   enemyDamage: 1,
   mapSize: 1000,
   buildingInitSpawn: 250,
@@ -34,7 +34,8 @@ const items = {
   healMedsDecr: 3,
   healHealthIncr: 1,
   maxSlimes: 10,
-  maxPickups: 10
+  maxPickups: 10,
+  flashRate: 500
 };
 
 export function constants() {

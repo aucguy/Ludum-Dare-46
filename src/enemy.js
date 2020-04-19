@@ -107,5 +107,13 @@ export const EnemyCollision = util.extend(Object, 'EnemyCollision', {
       this.nextDamage = this.scene.timeHandler.time + constants().immuneTime;
       this.scene.sound.play('hurt');
     }
+
+    if(this.nextDamge !== -1) {
+      const diff = this.nextDamage - this.scene.timeHandler.time;
+      if(diff > 0) {
+        const rate = constants().flashRate;
+        this.scene.player.sprite.visible = diff % rate < rate / 2;
+      }
+    }
   }
 });
