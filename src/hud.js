@@ -1,9 +1,15 @@
 import * as util from '/lib/util.js';
 
+let score = 0;
+
+export function getScore() {
+  return score;
+}
+
 export const Hud = util.extend(Object, 'Hud', {
   constructor: function(scene) {
     this.scene = scene;
-    this.score = 0;
+    this.setScore(0);
 
     this.hudSprite = scene.add.sprite(0, 0, 'hud');
     this.hudSprite.x = this.hudSprite.getBounds().width / 2;
@@ -46,7 +52,7 @@ export const Hud = util.extend(Object, 'Hud', {
     this.bulletText.setText('' + this.scene.player.bullets);
     this.healthText.setText('' + this.scene.player.health);
     this.medsText.setText('' + this.scene.player.meds);
-    this.scoreText.setText('' + this.score);
+    this.scoreText.setText('' + this.getScore());
   },
   addIndicator(scene, x, key) {
     const sprite = scene.add.sprite(x, this.hudSprite.y, key);
@@ -62,5 +68,11 @@ export const Hud = util.extend(Object, 'Hud', {
     group.events.on('add', child => {
       this.camera.ignore(child.sprite);
     });
+  },
+  getScore() {
+    return score;
+  },
+  setScore(x) {
+    score = x;
   }
 });

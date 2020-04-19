@@ -17,7 +17,7 @@ export const DropOffMeds = util.extend(Object, 'DropOffMeds', {
     if(Phaser.Geom.Rectangle.Overlaps(playerBounds, homeBounds) && keypressed &&
       this.scene.player.meds > 0) {
       this.scene.player.meds--;
-      this.scene.hud.score++;
+      this.scene.hud.setScore(this.scene.hud.getScore() + 1);
     }
   }
 });

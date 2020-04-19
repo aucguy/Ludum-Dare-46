@@ -60,9 +60,9 @@ export const HealthDeath = util.extend(Object, 'HealthDeath', {
     this.scene = scene;
   },
   update() {
-    //if(this.scene.player.health <= 0) {
-    //  this.scene.scene.start('lose');
-    //}
+    if(this.scene.player.health <= 0) {
+      this.scene.scene.start('lose');
+    }
   }
 });
 

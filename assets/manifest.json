@@ -43,5 +43,9 @@
 		"name": "score",
 		"type": "image",
 		"url": "assets/score.png"
+	}, {
+		"name": "play",
+		"type": "image",
+		"url": "assets/play.png"
 	}]
 }
