@@ -65,13 +65,13 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.player.update();
     this.enemies.update();
     this.shooter.update();
-    this.inputHandler.update();
     this.bulletHitKill.update();
     this.bulletHitStop.update();
     this.enemyCollision.update();
     this.playerPickup.update();
     this.dropOffMeds.update();
     this.hud.update();
+    this.inputHandler.update();
   }
 });
 
@@ -88,17 +88,19 @@ const TimeHandler = util.extend(Object, 'TimeHandler', {
 
 const InputHandler = util.extend(Object, 'InputHandler', {
   constructor: function(scene) {
-    this.downKeys = new Set();
+    this.keys = new Map();
+    this.justPressed = new Set();
     this.mouseClicked = false;
     this.mousePos = [0, 0];
 
-    scene.input.keyboard.on('keydown', event => {
-      this.downKeys.add(event.key.toUpperCase());
-    });
-
-    scene.input.keyboard.on('keyup', event => {
-      this.downKeys.delete(event.key.toUpperCase());
-    });
+    for(let name of ['W', 'A', 'S', 'D', 'F', 'R']) {
+      let key = scene.input.keyboard.addKey(name);
+      key.setEmitOnRepeat(false);
+      key.on('down', () => {
+        this.justPressed.add(name);
+      });
+      this.keys.set(name, key);
+    }
 
     scene.input.on('pointerdown', pointer => {
       this.mouseClicked = true;
@@ -109,7 +111,10 @@ const InputHandler = util.extend(Object, 'InputHandler', {
     });
   },
   isKeyDown(key) {
-    return this.downKeys.has(key);
+    return this.keys.get(key).isDown;
+  },
+  wasKeyJustPressed(key) {
+    return this.justPressed.has(key);
   },
   wasMouseClicked() {
     return this.mouseClicked;
@@ -119,6 +124,7 @@ const InputHandler = util.extend(Object, 'InputHandler', {
   },
   update() {
     this.mouseClicked = false;
+    this.justPressed.clear();
   }
 });
 
@@ -130,6 +136,7 @@ const Player = util.extend(Object, 'Player', {
 
     this.bullets = 10;
     this.health = 100;
+    this.meds = 0;
   },
   update() {
     this.movement.update();
@@ -249,7 +256,7 @@ const MedsPickup = util.extend(Pickup, 'MedsPickup', {
     this.constructor$Pickup(scene, x, y, 'meds');
   },
   onPickup() {
-    this.scene.player.health++;
+    this.scene.player.meds++;
   }
 });
 
@@ -518,9 +525,9 @@ const DropOffMeds = util.extend(Object, 'DropOffMeds', {
   update() {
     const playerBounds = this.scene.player.sprite.getBounds();
     const homeBounds = this.scene.home.sprite.getBounds();
-    const keydown = this.scene.inputHandler.isKeyDown('F');
-    if(Phaser.Geom.Rectangle.Overlaps(playerBounds, homeBounds) && keydown) {
-      this.scene.player.health--;
+    const keypressed = this.scene.inputHandler.wasKeyJustPressed('F');
+    if(Phaser.Geom.Rectangle.Overlaps(playerBounds, homeBounds) && keypressed) {
+      this.scene.player.meds--;
       this.scene.hud.score++;
     }
   }
@@ -532,14 +539,18 @@ const Hud = util.extend(Object, 'Hud', {
     this.score = 0;
     this.bulletText = scene.add.text(0, 0, 'Bullets: 0');
     this.healthText = scene.add.text(0, 20, 'Health: 100');
-    this.scoreText = scene.add.text(0, 40, 'Score: 0');
+    this.medsText = scene.add.text(0, 40, 'Meds: 0');
+    this.scoreText = scene.add.text(0, 60, 'Score: 0');
 
     this.camera = scene.cameras.add(0, 0, scene.cameras.main.width,
       scene.cameras.main.height);
-    scene.cameras.main.ignore([this.bulletText, this.healthText, this.scoreText]);
+    scene.cameras.main.ignore([this.bulletText, this.healthText, this.medsText,
+      this.scoreText
+    ]);
 
     this.camera.ignore([scene.player.sprite, scene.statics.group,
-      scene.enemies.group, scene.bullets.group, scene.pickups.group
+      scene.enemies.group, scene.bullets.group, scene.pickups.group,
+      scene.home.sprite
     ]);
 
     scene.bullets.events.on('add', child => {
@@ -549,6 +560,7 @@ const Hud = util.extend(Object, 'Hud', {
   update() {
     this.bulletText.setText('Bullets: ' + this.scene.player.bullets);
     this.healthText.setText('Health: ' + this.scene.player.health);
+    this.medsText.setText('Meds: ' + this.scene.player.meds);
     this.scoreText.setText('Score: ' + this.score);
   }
 });
