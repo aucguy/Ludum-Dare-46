@@ -35,6 +35,7 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.playerPickup = null;
     this.home = null;
     this.dropOffMeds = null;
+    this.medHeal = null;
   },
   create() {
     this.timeHandler = new TimeHandler();
@@ -51,6 +52,7 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.pickups = new PickupGroup(this);
     this.playerPickup = new PlayerPickup(this);
     this.dropOffMeds = new DropOffMeds(this);
+    this.medHeal = new MedHeal(this);
 
     this.bullets = new BulletGroup(this);
     this.shooter = new Shooter(this);
@@ -70,6 +72,7 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.enemyCollision.update();
     this.playerPickup.update();
     this.dropOffMeds.update();
+    this.medHeal.update();
     this.hud.update();
     this.inputHandler.update();
   }
@@ -166,6 +169,20 @@ const PlayerMovement = util.extend(Object, 'PlayerMovement', {
       yVel = -MOVE_SPEED;
     }
     this.player.sprite.setVelocity(xVel, yVel);
+  }
+});
+
+const MedHeal = util.extend(Object, 'MedHeal', {
+  constructor: function(scene) {
+    this.scene = scene;
+  },
+  update() {
+    if(this.scene.inputHandler.wasKeyJustPressed('R')) {
+      if(this.scene.player.meds > 0) {
+        this.scene.player.meds--;
+        this.scene.player.health++;
+      }
+    }
   }
 });
 
