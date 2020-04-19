@@ -47,9 +47,9 @@ export const MedHeal = util.extend(Object, 'MedHeal', {
   },
   update() {
     if(this.scene.inputHandler.wasKeyJustPressed('R')) {
-      if(this.scene.player.meds > 0) {
+      if(this.scene.player.meds >= constants().healMedsDecr) {
         this.scene.player.meds -= constants().healMedsDecr;
-        this.scene.player.health += constants().healHealhIncr;
+        this.scene.player.health += constants().healHealthIncr;
       }
     }
   }

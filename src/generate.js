@@ -101,7 +101,7 @@ function getSpawnType() {
   if(chance < constants().ammoSpawnChance) {
     return 'ammo';
   }
-  chance -= constants.ammoSpawnChance;
+  chance -= constants().ammoSpawnChance;
   if(chance < constants().medsSpawnChance) {
     return 'meds';
   } else {
@@ -116,9 +116,9 @@ export const Spawner = util.extend(Object, 'Spawner', {
   },
   update() {
     if(this.nextSpawn === -1) {
-      this.nextSpawn = this.scene.timeHandler.time; //+ constants().firstSpawnTime;
+      this.nextSpawn = this.scene.timeHandler.time + constants().firstSpawnTime;
     } else if(this.nextSpawn <= this.scene.timeHandler.time) {
-      this.nextSpawn = this.scene.timeHandler.time + 1; //+ constants().spawnTime;
+      this.nextSpawn = this.scene.timeHandler.time + constants().spawnTime;
 
       const objs = [
         this.scene.statics.group.getChildren(),
@@ -156,12 +156,19 @@ export const Spawner = util.extend(Object, 'Spawner', {
       }
 
       if(!found) {
-        if(type == 'enemy') {
-          this.scene.enemies.add(new Enemy(this.scene, this.scene.enemies, attemptX, attemptY));
-        } else if(type == 'ammo') {
-          this.scene.pickups.add(new AmmoPickup(this.scene, attemptX, attemptY));
-        } else if(type == 'meds') {
-          this.scene.pickups.add(new MedsPickup(this.scene, attemptX, attemptY));
+        if(type === 'enemy') {
+          if(this.scene.enemies.children.size < constants().maxSlimes) {
+            this.scene.enemies.add(new Enemy(this.scene, this.scene.enemies,
+              attemptX, attemptY));
+          }
+        } else if(type === 'ammo' || type === 'meds') {
+          if(this.scene.pickups.children.size < constants().maxPickups) {
+            if(type === 'ammo') {
+              this.scene.pickups.add(new AmmoPickup(this.scene, attemptX, attemptY));
+            } else if(type === 'meds') {
+              this.scene.pickups.add(new MedsPickup(this.scene, attemptX, attemptY));
+            }
+          }
         }
       }
     }
