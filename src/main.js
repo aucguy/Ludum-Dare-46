@@ -14,6 +14,7 @@ export function init() {
     },
   });
   game.scene.add('play', new PlayScene());
+  game.scene.add('lose', new LoseScene());
   return game;
 }
 
@@ -36,6 +37,7 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.home = null;
     this.dropOffMeds = null;
     this.medHeal = null;
+    this.healthDeath = null;
   },
   create() {
     this.timeHandler = new TimeHandler();
@@ -53,6 +55,7 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.playerPickup = new PlayerPickup(this);
     this.dropOffMeds = new DropOffMeds(this);
     this.medHeal = new MedHeal(this);
+    this.healthDeath = new HealthDeath(this);
 
     this.bullets = new BulletGroup(this);
     this.shooter = new Shooter(this);
@@ -75,6 +78,7 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.medHeal.update();
     this.hud.update();
     this.inputHandler.update();
+    this.healthDeath.update();
   }
 });
 
@@ -138,7 +142,7 @@ const Player = util.extend(Object, 'Player', {
     this.cameraCenter = new CameraCenter(this, scene);
 
     this.bullets = 10;
-    this.health = 100;
+    this.health = 5;
     this.meds = 0;
   },
   update() {
@@ -182,6 +186,17 @@ const MedHeal = util.extend(Object, 'MedHeal', {
         this.scene.player.meds--;
         this.scene.player.health++;
       }
+    }
+  }
+});
+
+const HealthDeath = util.extend(Object, 'HealthDeath', {
+  constructor: function(scene) {
+    this.scene = scene;
+  },
+  update() {
+    if(this.scene.player.health <= 0) {
+      this.scene.scene.start('lose');
     }
   }
 });
@@ -580,5 +595,14 @@ const Hud = util.extend(Object, 'Hud', {
     this.healthText.setText('Health: ' + this.scene.player.health);
     this.medsText.setText('Meds: ' + this.scene.player.meds);
     this.scoreText.setText('Score: ' + this.score);
+  }
+});
+
+const LoseScene = util.extend(Phaser.Scene, 'LoseScene', {
+  constructor: function() {
+    this.constructor$Scene();
+  },
+  create: function() {
+    this.add.text(100, 100, 'You lost!');
   }
 });
