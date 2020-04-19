@@ -31,7 +31,8 @@ export const Shooter = util.extend(Object, 'Shooter', {
     this.scene = scene;
   },
   update() {
-    if(this.scene.inputHandler.wasMouseClicked() && this.scene.player.bullets > 0) {
+    if(this.scene.inputHandler.wasMouseClicked() &&
+      this.scene.player.bullets >= constants().bulletShootNum) {
       const mousePos = this.scene.inputHandler.getMousePos();
       const mouseX = mousePos[0] - this.scene.sys.game.canvas.width / 2;
       const mouseY = mousePos[1] - this.scene.sys.game.canvas.height / 2;
@@ -48,6 +49,8 @@ export const Shooter = util.extend(Object, 'Shooter', {
       this.scene.bullets.add(bullet);
 
       this.scene.player.bullets -= constants().bulletShootNum;
+
+      this.scene.sound.play('shoot');
     }
   }
 });

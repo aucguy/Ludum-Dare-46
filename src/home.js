@@ -19,6 +19,7 @@ export const DropOffMeds = util.extend(Object, 'DropOffMeds', {
       this.scene.player.meds > constants().minMeds) {
       this.scene.player.meds -= constants().dropOffMedsDecr;
       this.scene.hud.setScore(this.scene.hud.getScore() + constants().dropOffScoreIncr);
+      this.scene.sound.play('dropoff');
     }
   }
 });

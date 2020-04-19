@@ -103,6 +103,7 @@ export const EnemyCollision = util.extend(Object, 'EnemyCollision', {
       (this.nextDamage == -1 || this.nextDamage <= this.scene.timeHandler.time)) {
       this.scene.player.health -= constants().enemyDamage;
       this.nextDamage = this.scene.timeHandler.time + constants().immuneTime;
+      this.scene.sound.play('hurt');
     }
   }
 });

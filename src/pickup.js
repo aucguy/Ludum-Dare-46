@@ -45,6 +45,7 @@ export const PlayerPickup = util.extend(Object, 'PlayerPickup', {
       if(Phaser.Geom.Rectangle.Overlaps(playerBounds, pickupBounds)) {
         pickup.onPickup();
         this.scene.pickups.delete(pickup);
+        this.scene.sound.play('collect');
       }
     }
   }

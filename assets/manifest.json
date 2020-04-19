@@ -47,5 +47,25 @@
 		"name": "play",
 		"type": "image",
 		"url": "assets/play.png"
+	}, {
+		"name": "shoot",
+		"type": "audio",
+		"url": "assets/shoot.wav"
+	}, {
+		"name": "hurt",
+		"type": "audio",
+		"url": "assets/hurt.wav"
+	}, {
+		"name": "collect",
+		"type": "audio",
+		"url": "assets/collect.wav"
+	}, {
+		"name": "dropoff",
+		"type": "audio",
+		"url": "assets/dropoff.wav"
+	}, {
+		"name": "use",
+		"type": "audio",
+		"url": "assets/use.wav"
 	}]
 }
