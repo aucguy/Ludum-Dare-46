@@ -543,7 +543,8 @@ const DropOffMeds = util.extend(Object, 'DropOffMeds', {
     const playerBounds = this.scene.player.sprite.getBounds();
     const homeBounds = this.scene.home.sprite.getBounds();
     const keypressed = this.scene.inputHandler.wasKeyJustPressed('F');
-    if(Phaser.Geom.Rectangle.Overlaps(playerBounds, homeBounds) && keypressed) {
+    if(Phaser.Geom.Rectangle.Overlaps(playerBounds, homeBounds) && keypressed &&
+      this.scene.player.meds > 0) {
       this.scene.player.meds--;
       this.scene.hud.score++;
     }
