@@ -36,8 +36,8 @@ export function generateTerrain(scene) {
       return new MedsPickup(scene, x, y);
     }
   });
-  //spawn(scene, constants().enemyInitSpawn, objs, enemies, 'enemies',
-  //    (x, y) =>new Enemy(scene, x, y));
+  spawn(scene, constants().enemyInitSpawn, objs, enemies, 'enemy',
+    (x, y) => new Enemy(scene, enemies, x, y));
 
   return {
     statics,
@@ -47,9 +47,17 @@ export function generateTerrain(scene) {
   };
 }
 
+function getScreenBounds(scene, playerX, playerY) {
+  const screenWidth = scene.cameras.main.width;
+  const screenHeight = scene.cameras.main.height;
+  return new Phaser.Geom.Rectangle(-screenWidth / 2 + playerX,
+    -screenHeight / 2 + playerY, screenWidth, screenHeight);
+}
+
 function spawn(scene, attempts, objs, group, key, factory) {
   const texture = scene.textures.get(key).getSourceImage();
   const margin = texture.width * constants().marginFactor;
+  const screenBounds = getScreenBounds(scene, 0, 0);
 
   for(let i = 0; i < attempts; i++) {
     let attemptX = Math.random() * mapSize - mapSize / 2;
@@ -59,6 +67,10 @@ function spawn(scene, attempts, objs, group, key, factory) {
     let bounds = new Phaser.Geom.Rectangle(attemptX - halfWidth - margin,
       attemptY - halfHeight - margin, texture.width + 2 * margin,
       texture.height + 2 * margin);
+
+    if(key === 'enemy' && Phaser.Geom.Rectangle.Overlaps(bounds, screenBounds)) {
+      continue;
+    }
 
     let found = false;
     for(let obj of objs) {
@@ -128,6 +140,12 @@ export const Spawner = util.extend(Object, 'Spawner', {
       const spawnBounds = new Phaser.Geom.Rectangle(attemptX, attemptY,
         texture.width, texture.height);
 
+      const screenBounds = getScreenBounds(this.scene, this.scene.player.sprite.x,
+        this.scene.player.sprite.y);
+      if(Phaser.Geom.Rectangle.Overlaps(spawnBounds, screenBounds)) {
+        return;
+      }
+
       let found = false;
       for(let obj of objs) {
         let objBounds = obj.getBounds();
@@ -139,7 +157,7 @@ export const Spawner = util.extend(Object, 'Spawner', {
 
       if(!found) {
         if(type == 'enemy') {
-          this.scene.enemies.add(new Enemy(this.scene, attemptX, attemptY));
+          this.scene.enemies.add(new Enemy(this.scene, this.scene.enemies, attemptX, attemptY));
         } else if(type == 'ammo') {
           this.scene.pickups.add(new AmmoPickup(this.scene, attemptX, attemptY));
         } else if(type == 'meds') {

@@ -29,9 +29,9 @@ function isTouching(sprite, objs, offsetX, offsetY) {
 }
 
 export const Enemy = util.extend(Object, 'Enemy', {
-  constructor: function(scene, x, y) {
+  constructor: function(scene, group, x, y) {
     this.scene = scene;
-    this.sprite = scene.enemies.group.create(x, y, 'enemy');
+    this.sprite = group.group.create(x, y, 'enemy');
   },
   update() {
     let x = this.scene.player.sprite.x - this.sprite.x;
