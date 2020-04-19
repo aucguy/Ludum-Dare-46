@@ -136,6 +136,7 @@ const Background = util.extend(Object, 'Background', {
     const screenWidth = scene.cameras.main.width;
     const screenHeight = scene.cameras.main.height;
     this.tile = scene.add.sprite(0, 0, 'grass');
+    this.tile.setScale(4);
     const tileWidth = this.tile.getBounds().width;
     const tileHeight = this.tile.getBounds().height;
     const backgroundWidth = Math.ceil(screenWidth + tileWidth);

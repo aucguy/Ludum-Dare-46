@@ -31,5 +31,17 @@
 		"name": "grass",
 		"type": "image",
 		"url": "assets/grass.png"
+	}, {
+		"name": "hud",
+		"type": "image",
+		"url": "assets/hud.png"
+	}, {
+		"name": "health",
+		"type": "image",
+		"url": "assets/health.png"
+	}, {
+		"name": "score",
+		"type": "image",
+		"url": "assets/score.png"
 	}]
 }

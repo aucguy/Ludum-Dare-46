@@ -13,6 +13,7 @@ export function init() {
         //debug: true
       }
     },
+    pixelArt: true
   });
   game.scene.add('play', new PlayScene());
   game.scene.add('lose', new LoseScene());
