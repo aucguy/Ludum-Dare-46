@@ -27,5 +27,9 @@
 		"name": "home",
 		"type": "image",
 		"url": "assets/home.png"
+	}, {
+		"name": "grass",
+		"type": "image",
+		"url": "assets/grass.png"
 	}]
 }

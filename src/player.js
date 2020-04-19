@@ -6,7 +6,7 @@ export const Player = util.extend(Object, 'Player', {
     this.movement = new PlayerMovement(this, scene);
     this.cameraCenter = new CameraCenter(this, scene);
 
-    this.bullets = 10;
+    this.bullets = 1000;
     this.health = 5;
     this.meds = 0;
   },

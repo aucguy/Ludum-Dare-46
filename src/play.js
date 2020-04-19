@@ -29,8 +29,10 @@ export const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.dropOffMeds = null;
     this.medHeal = null;
     this.healthDeath = null;
+    this.background = null;
   },
   create() {
+    this.background = new Background(this);
     this.timeHandler = new TimeHandler();
     this.inputHandler = new InputHandler(this);
 
@@ -71,6 +73,7 @@ export const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.hud.update();
     this.inputHandler.update();
     this.healthDeath.update();
+    this.background.update();
   }
 });
 
@@ -124,5 +127,41 @@ const InputHandler = util.extend(Object, 'InputHandler', {
   update() {
     this.mouseClicked = false;
     this.justPressed.clear();
+  }
+});
+
+const Background = util.extend(Object, 'Background', {
+  constructor: function(scene) {
+    this.scene = scene;
+    const screenWidth = scene.cameras.main.width;
+    const screenHeight = scene.cameras.main.height;
+    this.tile = scene.add.sprite(0, 0, 'grass');
+    const tileWidth = this.tile.getBounds().width;
+    const tileHeight = this.tile.getBounds().height;
+    const backgroundWidth = Math.ceil(screenWidth + tileWidth);
+    const backgroundHeight = Math.ceil(screenHeight + tileHeight);
+    this.sprite = scene.add.renderTexture(-screenWidth / 2, -screenHeight / 2,
+      backgroundWidth, backgroundHeight);
+
+    for(let x = 0; x < backgroundWidth + tileWidth; x += tileWidth) {
+      for(let y = 0; y < backgroundHeight + tileHeight; y += tileHeight) {
+        this.sprite.draw(this.tile, Math.floor(x - tileWidth / 2),
+          Math.floor(y - tileHeight / 2));
+      }
+    }
+    //tile.destroy();
+  },
+  update() {
+    const screenWidth = this.scene.cameras.main.width;
+    const screenHeight = this.scene.cameras.main.height;
+
+    const tileWidth = this.tile.getBounds().width;
+    const tileHeight = this.tile.getBounds().height;
+
+    const shiftX = Math.floor(this.scene.player.sprite.x / tileWidth) * (tileWidth);
+    const shiftY = Math.floor(this.scene.player.sprite.y / tileHeight) * tileHeight;
+
+    this.sprite.x = -screenWidth / 2 + shiftX;
+    this.sprite.y = -screenHeight / 2 + shiftY;
   }
 });

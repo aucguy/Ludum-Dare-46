@@ -12,12 +12,12 @@ export const Hud = util.extend(Object, 'Hud', {
     this.camera = scene.cameras.add(0, 0, scene.cameras.main.width,
       scene.cameras.main.height);
     scene.cameras.main.ignore([this.bulletText, this.healthText, this.medsText,
-      this.scoreText
+      this.scoreText, scene.background.tile
     ]);
 
     this.camera.ignore([scene.player.sprite, scene.statics.group,
       scene.enemies.group, scene.bullets.group, scene.pickups.group,
-      scene.home.sprite
+      scene.home.sprite, scene.background.sprite, scene.background.tile
     ]);
 
     scene.bullets.events.on('add', child => {
