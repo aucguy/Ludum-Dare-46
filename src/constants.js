@@ -33,8 +33,8 @@ const items = {
   playerSpeed: 125,
   healMedsDecr: 3,
   healHealthIncr: 1,
-  maxSlimes: 10,
-  maxPickups: 10,
+  maxSlimes: 7,
+  maxPickups: 15,
   flashRate: 500
 };
 
