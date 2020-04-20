@@ -1,6 +1,7 @@
 import * as util from '/lib/util.js';
 import { PlayScene } from './play.js';
 import { getScore } from './hud.js';
+import { DigitGroup } from './group.js';
 
 export function init() {
   const game = new Phaser.Game({
@@ -37,6 +38,11 @@ const CustomBootScene = util.extend(util.BootScene, 'CustomBootScene', {
       frameWidth: 8,
       frameHeight: 8
     });
+    
+    this.load.spritesheet('digits', 'assets/digits.png', {
+      frameWidth: 9,
+      frameHeight: 16
+    })
   },
   create() {
     this.create$BootScene();
@@ -70,6 +76,16 @@ const CustomBootScene = util.extend(util.BootScene, 'CustomBootScene', {
       frameRate: 2,
       repeat: -1
     });
+    
+    for(let i = 0; i < 10; i++) {
+      this.anims.create({
+        key: 'digit' + i,
+        frames: this.anims.generateFrameNumbers('digits', {
+          start: i - 1,
+          end: i
+        })
+      });
+    }
   }
 });
 
@@ -112,8 +128,15 @@ const LoseScene = util.extend(Phaser.Scene, 'LoseScene', {
   },
   create: function() {
     addWallpaper(this);
-    this.add.text(100, 100, 'You lost!');
-    this.add.text(100, 200, 'Your score was ' + getScore());
+    const width = this.cameras.main.width;
+    const height = this.cameras.main.height;
+    const loseTitle = this.add.sprite(width / 2, height / 4, 'loseTitle');
+    loseTitle.setScale(4);
+    //this.add.text(100, 100, 'You lost!');
+    //this.add.text(100, 200, 'Your score was ' + getScore());
+    const scoreTitle = this.add.sprite(width / 2, height / 4 * 3, 'scoreTitle');
+    scoreTitle.setScale(4);
+    const scoreText = new DigitGroup(this, 999, width / 2 + 64, height / 4 * 3, false, 4);
     addPlayButton(this);
   }
 });

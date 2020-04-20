@@ -71,5 +71,13 @@
 		"name": "music",
 		"type": "audio",
 		"url": "assets/music.mp3"
+	}, {
+		"name": "loseTitle",
+		"type": "image",
+		"url": "assets/loseTitle.png"
+	}, {
+		"name": "scoreTitle",
+		"type": "image",
+		"url": "assets/scoreTitle.png"
 	}]
 }

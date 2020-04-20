@@ -1,4 +1,5 @@
 import * as util from '/lib/util.js';
+import { DigitGroup } from './group.js';
 import { constants } from './constants.js';
 
 let score = 0;
@@ -59,8 +60,9 @@ export const Hud = util.extend(Object, 'Hud', {
   addIndicator(scene, x, key) {
     const sprite = scene.add.sprite(x, this.hudSprite.y, key);
     sprite.setScale(4);
-    const text = scene.add.text(sprite.getBounds().right + 8, this.hudSprite.y, '0');
-    text.y -= text.getBounds().height / 2;
+    const text = new DigitGroup(this.scene, 0, sprite.getBounds().right + 16, this.hudSprite.y, true, 2);
+    //const text = scene.add.text(sprite.getBounds().right + 8, this.hudSprite.y, '0');
+    //text.y -= text.getBounds().height / 2;
 
     return {
       sprite,

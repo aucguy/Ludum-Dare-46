@@ -32,3 +32,41 @@ export const PhysicsGroup = util.extend(Group, 'PhysicsGroup', {
     this.events.emit('add', child);
   }
 });
+
+export const DigitGroup = util.extend(Object, 'DigitGroup', {
+  constructor: function(scene, num, x, y, hide, scale) {
+    this.children = new Set();
+    this.scene = scene;
+    this.num = null;
+    this.x = x;
+    this.y = y;
+    this.hide = hide;
+    this.scale = scale;
+    this.setText(num, x, y);
+  },
+  setText(num) {
+    if(num === this.num) {
+      return;
+    }
+    this.num = num;
+    
+    let sprite;
+    for(let sprite of this.children) {
+      sprite.destroy();
+    }
+    
+    num = '' + num;
+    let x = this.x;
+    for(let i = 0; i < num.length; i++) {
+      let c = num[i];
+      sprite = this.scene.add.sprite(x, this.y, 'digits');
+      sprite.setScale(this.scale);
+      sprite.anims.play('digit' + c);
+      this.children.add(sprite);
+      if(this.hide) {
+        this.scene.cameras.main.ignore(sprite);
+      }
+      x += 8*this.scale + 2;
+    }
+  }
+})
