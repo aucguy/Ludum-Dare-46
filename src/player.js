@@ -74,6 +74,7 @@ export const HealthDeath = util.extend(Object, 'HealthDeath', {
   update() {
     if(this.scene.player.health <= 0) {
       this.scene.scene.start('lose');
+      this.scene.music.stop();
     }
   }
 });

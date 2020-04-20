@@ -85,16 +85,22 @@ function addPlayButton(scene) {
   });
 }
 
+function addWallpaper(scene) {
+  const width = scene.cameras.main.width;
+  const height = scene.cameras.main.height;
+  scene.add.sprite(width / 2, height / 2, 'wallpaper');
+}
+
 const MenuScene = util.extend(Phaser.Scene, 'MenuScene', {
   constructor: function() {
     this.constructor$Scene();
     this.playButton = null;
   },
   create() {
+    addWallpaper(this);
+    addPlayButton(this);
     const width = this.cameras.main.width;
     const height = this.cameras.main.height;
-    this.add.sprite(width / 2, height / 2, 'wallpaper');
-    addPlayButton(this);
     const title = this.add.sprite(width / 2, height / 4, 'title');
     title.setScale(4);
   }
@@ -105,6 +111,7 @@ const LoseScene = util.extend(Phaser.Scene, 'LoseScene', {
     this.constructor$Scene();
   },
   create: function() {
+    addWallpaper(this);
     this.add.text(100, 100, 'You lost!');
     this.add.text(100, 200, 'Your score was ' + getScore());
     addPlayButton(this);

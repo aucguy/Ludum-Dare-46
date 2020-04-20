@@ -31,6 +31,7 @@ export const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.healthDeath = null;
     this.background = null;
     this.spawner = null;
+    this.music = null;
   },
   create() {
     this.background = new Background(this);
@@ -60,6 +61,13 @@ export const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.hud = new Hud(this);
     this.enemyCollision = new EnemyCollision(this);
     this.spawner = new Spawner(this);
+    
+    this.sound.volume = 0.1;
+    this.music = this.sound.add('music', {
+      volume: 0.5,
+      loop: true
+    });
+    this.music.play();
   },
   update(time, delta) {
     this.timeHandler.update(time, delta);
@@ -77,6 +85,9 @@ export const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.healthDeath.update();
     this.spawner.update();
     this.background.update();
+  },
+  shutdown() {
+    this.music.stop();
   }
 });
 
@@ -153,7 +164,6 @@ const Background = util.extend(Object, 'Background', {
           Math.floor(y - tileHeight / 2));
       }
     }
-    //tile.destroy();
   },
   update() {
     const screenWidth = this.scene.cameras.main.width;

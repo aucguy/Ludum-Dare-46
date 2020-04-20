@@ -67,5 +67,9 @@
 		"name": "title",
 		"type": "image",
 		"url": "assets/title.png"
+	}, {
+		"name": "music",
+		"type": "audio",
+		"url": "assets/music.mp3"
 	}]
 }
