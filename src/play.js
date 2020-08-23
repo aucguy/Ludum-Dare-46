@@ -61,7 +61,7 @@ export const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.hud = new Hud(this);
     this.enemyCollision = new EnemyCollision(this);
     this.spawner = new Spawner(this);
-    
+
     this.sound.volume = 0.1;
     this.music = this.sound.add('music', {
       volume: 0.5,

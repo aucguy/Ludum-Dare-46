@@ -49,12 +49,12 @@ export const DigitGroup = util.extend(Object, 'DigitGroup', {
       return;
     }
     this.num = num;
-    
+
     let sprite;
     for(let sprite of this.children) {
       sprite.destroy();
     }
-    
+
     num = '' + num;
     let x = this.x;
     for(let i = 0; i < num.length; i++) {
@@ -66,7 +66,7 @@ export const DigitGroup = util.extend(Object, 'DigitGroup', {
       if(this.hide) {
         this.scene.cameras.main.ignore(sprite);
       }
-      x += 8*this.scale + 2;
+      x += 8 * this.scale + 2;
     }
   }
-})
+});

@@ -79,5 +79,23 @@
 		"name": "scoreTitle",
 		"type": "image",
 		"url": "assets/scoreTitle.png"
+	}, {
+		"name": "player",
+		"type": "spritesheet",
+		"url": "assets/player.png",
+		"frameWidth": 6,
+		"frameHeight": 16
+	}, {
+		"name": "enemy",
+		"type": "spritesheet",
+		"url": "assets/enemy.png",
+		"frameWidth": 8,
+		"frameHeight": 8
+	}, {
+		"name": "digits",
+		"type": "spritesheet",
+		"url": "assets/digits.png",
+		"frameWidth": 9,
+		"frameHeight": 16
 	}]
 }

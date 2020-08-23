@@ -3,5 +3,4 @@ build
 backup/
 jshint-output.html
 lib/
-.settings
 .project

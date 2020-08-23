@@ -27,23 +27,6 @@ const CustomBootScene = util.extend(util.BootScene, 'CustomBootScene', {
   constructor: function(nextScene) {
     this.constructor$BootScene(nextScene);
   },
-  preload() {
-    this.preload$BootScene();
-    this.load.spritesheet('player', 'assets/player.png', {
-      frameWidth: 16,
-      frameHeight: 16
-    });
-
-    this.load.spritesheet('enemy', 'assets/enemy.png', {
-      frameWidth: 8,
-      frameHeight: 8
-    });
-    
-    this.load.spritesheet('digits', 'assets/digits.png', {
-      frameWidth: 9,
-      frameHeight: 16
-    })
-  },
   create() {
     this.create$BootScene();
 
@@ -76,12 +59,12 @@ const CustomBootScene = util.extend(util.BootScene, 'CustomBootScene', {
       frameRate: 2,
       repeat: -1
     });
-    
+
     for(let i = 0; i < 10; i++) {
       this.anims.create({
         key: 'digit' + i,
         frames: this.anims.generateFrameNumbers('digits', {
-          start: i - 1,
+          start: i,
           end: i
         })
       });
@@ -132,11 +115,10 @@ const LoseScene = util.extend(Phaser.Scene, 'LoseScene', {
     const height = this.cameras.main.height;
     const loseTitle = this.add.sprite(width / 2, height / 4, 'loseTitle');
     loseTitle.setScale(4);
-    //this.add.text(100, 100, 'You lost!');
-    //this.add.text(100, 200, 'Your score was ' + getScore());
     const scoreTitle = this.add.sprite(width / 2, height / 4 * 3, 'scoreTitle');
     scoreTitle.setScale(4);
-    const scoreText = new DigitGroup(this, 999, width / 2 + 64, height / 4 * 3, false, 4);
+    const scoreText = new DigitGroup(this, getScore(), width / 2 + 64,
+      height / 4 * 3, false, 4);
     addPlayButton(this);
   }
 });
